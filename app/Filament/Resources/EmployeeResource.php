@@ -4,14 +4,20 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\EmployeeResource\Pages;
 use App\Filament\Resources\EmployeeResource\RelationManagers;
+use App\Models\City;
 use App\Models\Employee;
+use App\Models\State;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection as SupportCollection;
 
 class EmployeeResource extends Resource
 {
@@ -31,21 +37,36 @@ class EmployeeResource extends Resource
                         ->relationship(name: 'country', titleAttribute: 'name')
                         ->native(false)
                         ->searchable()
+                        ->live()
+                        ->afterStateUpdated(
+                            function (Set $set){
+                                $set('state_id', null);
+                                $set('city_id', null);
+                            } 
+                        )
                         ->preload()
                         ->required(),
                     Forms\Components\Select::make('state_id')
-                        ->relationship(name: 'state', titleAttribute: 'name')
+                        ->options(
+                            fn(Get $get): SupportCollection => State::query()->where('country_id', $get('country_id'))->pluck('name', 'id')
+                        )
                         ->native(false)
                         ->searchable()
+                        ->live()
+                        ->afterStateUpdated(
+                            fn(Set $set) => $set('city_id', null)
+                            )
                         ->preload()
                         ->required(),
                     Forms\Components\Select::make('city_id')
-                        ->relationship(name: 'city', titleAttribute: 'name')
+                        ->options(
+                            fn(Get $get): SupportCollection => City::query()->where('state_id', $get('state_id'))->pluck('name', 'id')
+                        )
                         ->native(false)
                         ->searchable()
                         ->preload()
                         ->required(),
-                    Forms\Components\Select::make('deparment_id')
+                    Forms\Components\Select::make('department_id')
                         ->relationship(name: 'department', titleAttribute: 'name')
                         ->native(false)
                         ->searchable()
@@ -79,9 +100,13 @@ class EmployeeResource extends Resource
                 Forms\Components\Section::make('Dates')                    
                     ->schema([
                         Forms\Components\DatePicker::make('date_of_birth')
-                            ->required(),
+                            ->required()
+                            ->native(false)
+                            ->displayFormat('d/m/Y'),
                         Forms\Components\DatePicker::make('date_of_hired')
-                            ->required(),
+                            ->required()
+                            ->native(false)
+                            ->displayFormat('d/m/Y'),
                     ])->columns(2)                                
             ]);
     }
@@ -89,19 +114,7 @@ class EmployeeResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('country_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('state_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('city_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('department_id')
-                    ->numeric()
-                    ->sortable(),
+            ->columns([                
                 Tables\Columns\TextColumn::make('first_name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('last_name')
