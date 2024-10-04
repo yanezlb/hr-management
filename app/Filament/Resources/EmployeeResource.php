@@ -17,12 +17,42 @@ class EmployeeResource extends Resource
 {
     protected static ?string $model = Employee::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+
+    protected static ?string $navigationGroup = 'Employee managment';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Forms\Components\Section::make('Employee location')                         
+                ->schema([
+                    Forms\Components\Select::make('country_id')
+                        ->relationship(name: 'country', titleAttribute: 'name')
+                        ->native(false)
+                        ->searchable()
+                        ->preload()
+                        ->required(),
+                    Forms\Components\Select::make('state_id')
+                        ->relationship(name: 'state', titleAttribute: 'name')
+                        ->native(false)
+                        ->searchable()
+                        ->preload()
+                        ->required(),
+                    Forms\Components\Select::make('city_id')
+                        ->relationship(name: 'city', titleAttribute: 'name')
+                        ->native(false)
+                        ->searchable()
+                        ->preload()
+                        ->required(),
+                    Forms\Components\Select::make('deparment_id')
+                        ->relationship(name: 'department', titleAttribute: 'name')
+                        ->native(false)
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->columnSpanFull(),
+                    ])->columns(3),
                 Forms\Components\Section::make('User Name')
                 ->description('Put user name details in.')                
                 ->schema([
