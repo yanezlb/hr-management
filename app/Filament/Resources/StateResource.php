@@ -7,6 +7,9 @@ use App\Filament\Resources\StateResource\RelationManagers;
 use App\Models\State;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -71,6 +74,7 @@ class StateResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -85,6 +89,21 @@ class StateResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([       
+                Section::make('State Info')
+                    ->schema([
+                        TextEntry::make('country.name')
+                        ->label('Country Name'), 
+                        TextEntry::make('name')
+                        ->label('State name')
+                    ])->columns(2)         
+                
+            ]);
     }
 
     public static function getPages(): array

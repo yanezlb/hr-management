@@ -7,10 +7,14 @@ use App\Filament\Resources\DepartmentResource\RelationManagers;
 use App\Models\Department;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class DepartmentResource extends Resource
@@ -44,7 +48,9 @@ class DepartmentResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable(),                
+                Tables\Columns\TextColumn::make('employees_count')->counts('employees')
+                    ->searchable(),                
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -65,6 +71,23 @@ class DepartmentResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([       
+                Section::make('State Info')
+                    ->schema([
+                        TextEntry::make('name'),
+                        TextEntry::make('employees_count')->state(
+                            function (Model $record): int{
+                                return $record->employees()->count();
+                            }
+                        ),                       
+                    ])->columns(2)         
+                
             ]);
     }
 
