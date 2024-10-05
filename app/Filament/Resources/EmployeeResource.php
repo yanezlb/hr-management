@@ -26,6 +26,7 @@ use Illuminate\Support\Collection as SupportCollection;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Model;
 
 class EmployeeResource extends Resource
 {
@@ -34,6 +35,41 @@ class EmployeeResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     protected static ?string $navigationGroup = 'Employee managment';
+    
+    protected static ?string $recordTitleAttribute = 'first_name'; // To enable global search
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return $record->first_name."  ".$record->last_name;
+    }
+    
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['first_name', 'last_name', 'middle_name', 'country.name'];
+    } 
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Country' => $record->country->name
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['country']);
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return static::getModel()::count() < 5 ? 'warning' : 'success';   
+    }
 
     public static function form(Form $form): Form
     {
