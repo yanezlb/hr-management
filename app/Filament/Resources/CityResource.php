@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CityResource\Pages;
 use App\Filament\Resources\CityResource\RelationManagers;
+use App\Filament\Resources\CityResource\RelationManagers\EmployeesRelationManager;
 use App\Models\City;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -99,6 +100,7 @@ class CityResource extends Resource
     {
         return [
             //
+            EmployeesRelationManager::class
         ];
     }
 
@@ -107,8 +109,10 @@ class CityResource extends Resource
         return [
             'index' => Pages\ListCities::route('/'),
             'create' => Pages\CreateCity::route('/create'),
-            // 'view' => Pages\ViewCity::route('/{record}'), // To show popup modal
+            'view' => Pages\ViewCity::route('/{record}'), // To show popup modal 
             'edit' => Pages\EditCity::route('/{record}/edit'),
         ];
     }
+
+    
 }
