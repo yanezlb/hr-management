@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection as SupportCollection;
 use Filament\Forms\Components\DatePicker;
+use Filament\Notifications\Notification;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Model;
@@ -236,6 +237,13 @@ class EmployeeResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    // ->successNotificationTitle('Employee deleted'),
+                    ->successNotification(
+                        Notification::make()
+                            ->success()
+                            ->title('Employee deleted')
+                            ->body('Employee deleted successfully'))
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
